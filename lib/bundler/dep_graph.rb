@@ -36,6 +36,8 @@ module Bundler
 
         tmp = Set.new
         parent_dependencies.each do |dependency|
+          dependency_spec = spec_for_dependency(dependency)
+          next if dependency_spec.nil?
           child_dependencies = spec_for_dependency(dependency).runtime_dependencies.to_set
           @relations[dependency.name] += child_dependencies.map(&:name).to_set
           tmp += child_dependencies
@@ -124,6 +126,7 @@ module Bundler
 
         @relations.each do |parent, children|
           children.each do |child|
+            next if @node_options[child].nil?
             if @groups.include?(parent)
               g.add_nodes(child, { :style => "filled", :fillcolor => "#B9B9D5" }.merge(@node_options[child]))
               g.add_edges(parent, child, { :constraint => false }.merge(@edge_options["#{parent}_#{child}"]))
